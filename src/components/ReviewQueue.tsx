@@ -35,9 +35,12 @@ const SUMMARY_CARDS: { status: Status; label: string; colorClass: string; icon: 
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 10;
+
 export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "ALL">("ALL");
+  const [page, setPage] = useState(1);
 
   const counts = { PENDING: 0, IN_REVIEW: 0, APPROVED: 0, REJECTED: 0 } as Record<Status, number>;
   intakes.forEach((i) => counts[i.status]++);
@@ -52,6 +55,9 @@ export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
     const matchesStatus = statusFilter === "ALL" || intake.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className={styles.container}>
@@ -99,13 +105,13 @@ export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
                 className={styles.searchInput}
                 placeholder="Search by name, ID, or email..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               />
             </div>
             <select
               className={styles.statusSelect}
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as Status | "ALL")}
+              onChange={(e) => { setStatusFilter(e.target.value as Status | "ALL"); setPage(1); }}
             >
               <option value="ALL">All Statuses</option>
               <option value="PENDING">Pending</option>
@@ -130,7 +136,7 @@ export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((intake) => (
+              {paginated.map((intake) => (
                 <tr key={intake.id}>
                   <td className={styles.idCell}>#{intake.id.slice(0, 8).toUpperCase()}</td>
                   <td className={styles.nameCell}>{intake.clientName}</td>
@@ -156,6 +162,28 @@ export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
             </tbody>
           </table>
         </div>
+
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page === 1}
+            >
+              ← Previous
+            </button>
+            <span className={styles.pageInfo}>
+              Page {page} of {totalPages}
+            </span>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page === totalPages}
+            >
+              Next →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

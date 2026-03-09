@@ -68,7 +68,7 @@ export default function LoginPage() {
                 setError("");
               }}
             >
-              <span className={styles.tabIcon}>📋</span> Client
+              <span className={styles.tabIcon}>📋</span> Patient
             </button>
             <button
               type="button"

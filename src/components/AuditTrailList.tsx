@@ -27,9 +27,12 @@ const ACTION_OPTIONS = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 10;
+
 export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
+  const [page, setPage] = useState(1);
 
   const filtered = entries.filter((entry) => {
     const q = search.toLowerCase();
@@ -41,6 +44,9 @@ export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
     const matchesAction = actionFilter === "ALL" || entry.action === actionFilter;
     return matchesSearch && matchesAction;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className={styles.container}>
@@ -94,13 +100,13 @@ export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
                 className={styles.searchInput}
                 placeholder="Search by client, ID, or user..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               />
             </div>
             <select
               className={styles.actionSelect}
               value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
+              onChange={(e) => { setActionFilter(e.target.value); setPage(1); }}
             >
               {ACTION_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -123,7 +129,7 @@ export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((entry) => (
+              {paginated.map((entry) => (
                 <tr key={entry.id}>
                   <td className={styles.dateCell}>{formatDate(entry.createdAt)}</td>
                   <td>
@@ -151,6 +157,28 @@ export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
             </tbody>
           </table>
         </div>
+
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page === 1}
+            >
+              ← Previous
+            </button>
+            <span className={styles.pageInfo}>
+              Page {page} of {totalPages}
+            </span>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page === totalPages}
+            >
+              Next →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
