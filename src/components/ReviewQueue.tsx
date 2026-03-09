@@ -3,10 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import styles from "./ReviewQueue.module.css";
+import { type Status, STATUS_LABELS, formatDate } from "@/lib/intakeHelpers";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-type Status = "PENDING" | "IN_REVIEW" | "APPROVED" | "REJECTED";
 
 export type IntakeSummary = {
   id: string;
@@ -16,25 +15,6 @@ export type IntakeSummary = {
   createdAt: string;
   reviewer: { name: string } | null;
 };
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const STATUS_LABELS: Record<Status, string> = {
-  PENDING: "Pending",
-  IN_REVIEW: "In Review",
-  APPROVED: "Approved",
-  REJECTED: "Rejected",
-};
-
-function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(iso));
-}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
