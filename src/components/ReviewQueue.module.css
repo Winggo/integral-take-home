@@ -255,6 +255,121 @@
 .badge[data-status="APPROVED"]  { background: #dcfce7; color: #15803d; }
 .badge[data-status="REJECTED"]  { background: #fee2e2; color: #b91c1c; }
 
+/* ── Checkbox cell ─────────────────────────────────────────────────────────── */
+
+.checkboxCell {
+  width: 44px;
+  padding-left: 1.25rem !important;
+  padding-right: 0.5rem !important;
+}
+
+.checkboxCell input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #111;
+}
+
+.checkboxCell input[type="checkbox"]:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.rowSelected td {
+  background: #f8f8ff !important;
+}
+
+/* ── Bulk action bar ────────────────────────────────────────────────────────── */
+
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: #f0f0ff;
+  border-bottom: 1px solid #ddd8ff;
+  flex-wrap: wrap;
+}
+
+.bulkCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #3730a3;
+  flex-shrink: 0;
+}
+
+.bulkError {
+  font-size: 0.8125rem;
+  color: #b91c1c;
+  flex: 1;
+}
+
+.bulkActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+.bulkRejectBtn {
+  padding: 0.375rem 0.875rem;
+  border: 1.5px solid #fca5a5;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+
+.bulkRejectBtn:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #f87171;
+}
+
+.bulkApproveBtn {
+  padding: 0.375rem 0.875rem;
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  background: #111;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.bulkApproveBtn:hover:not(:disabled) {
+  background: #333;
+}
+
+.bulkRejectBtn:disabled,
+.bulkApproveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bulkClearBtn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: none;
+  font-size: 0.875rem;
+  color: #888;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.bulkClearBtn:hover:not(:disabled) {
+  color: #111;
+  background: #e5e5e5;
+}
+
 /* ── View link ─────────────────────────────────────────────────────────────── */
 
 .viewLink {
