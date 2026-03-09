@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import AppHeader from "@/components/AppHeader";
+import IntakeForm from "@/components/IntakeForm";
+import styles from "./page.module.css";
 
 export default async function IntakePage() {
   const session = await auth();
@@ -12,9 +14,8 @@ export default async function IntakePage() {
         userRole={user.role}
         organization={user.organization}
       />
-      <main style={{ padding: "2rem" }}>
-        <h1>Submit Intake</h1>
-        <p>Use this form to submit a new intake for review.</p>
+      <main className={styles.main}>
+        <IntakeForm defaultName={user.name} defaultEmail={user.email} />
       </main>
     </>
   );
