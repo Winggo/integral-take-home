@@ -3,8 +3,25 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  // TODO: Implement fetching intakes
-  return NextResponse.json({ message: "TODO: Implement GET /api/intakes" });
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const where =
+    session.user.role === "PATIENT"
+      ? { submittedById: session.user.id }
+      : {};
+
+  const intakes = await prisma.intake.findMany({
+    where,
+    include: {
+      reviewer: { select: { id: true, name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json(intakes);
 }
 
 export async function POST(request: Request) {
