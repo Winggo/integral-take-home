@@ -4,26 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import styles from "./AuditTrailList.module.css";
 import { formatDate, formatAuditAction, type DateRange, DATE_OPTIONS, getDateBounds } from "@/lib/intakeHelpers";
+import { type AuditEntry, ACTION_OPTIONS, exportToCSV } from "@/lib/auditTrailHelpers";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type AuditEntry = {
-  id: string;
-  action: string;
-  details: string | null;
-  createdAt: string;
-  user: { id: string; name: string };
-  intake: { id: string; clientName: string };
-};
-
-// ─── Action filter options ────────────────────────────────────────────────────
-
-const ACTION_OPTIONS = [
-  { value: "ALL", label: "All Actions" },
-  { value: "CREATED", label: "Intake Submitted" },
-  { value: "STATUS_CHANGED", label: "Status Changed" },
-  { value: "VIEWED", label: "Viewed" },
-];
+export type { AuditEntry };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -132,6 +115,19 @@ export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
+            <div className={styles.controlsDivider} />
+            <button
+              className={styles.exportBtn}
+              onClick={() => exportToCSV(filtered)}
+              disabled={filtered.length === 0}
+              title="Export filtered results as CSV"
+            >
+              <svg width="13" height="13" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 15h14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+              </svg>
+              Export CSV
+            </button>
           </div>
         </div>
 

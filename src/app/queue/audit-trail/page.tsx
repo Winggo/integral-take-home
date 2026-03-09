@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import AppHeader from "@/components/AppHeader";
-import AuditTrailList, { type AuditEntry } from "@/components/AuditTrailList";
+import AuditTrailList from "@/components/AuditTrailList";
+import { type AuditEntry } from "@/lib/auditTrailHelpers";
 import { prisma } from "@/lib/prisma";
 import styles from "./page.module.css";
 
