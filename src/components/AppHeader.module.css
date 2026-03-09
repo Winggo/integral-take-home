@@ -1,0 +1,61 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 56px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.appName {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.01em;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.userName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111;
+  line-height: 1.2;
+}
+
+.userMeta {
+  font-size: 0.75rem;
+  color: #888;
+  line-height: 1.2;
+}
+
+.signOutBtn {
+  padding: 0.4rem 0.875rem;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.signOutBtn:hover {
+  border-color: #111;
+  color: #111;
+  background: #f5f5f5;
+}
