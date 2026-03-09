@@ -188,8 +188,13 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.toggleBtn:hover:not(.toggleActive) {
+.toggleBtn:hover:not(.toggleActive):not(:disabled) {
   color: #555;
+}
+
+.toggleBtn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
 }
 
 .toggleActive {

@@ -172,6 +172,7 @@ export default function IntakeDetail({ intake }: { intake: IntakeFull }) {
   const [previewDoc, setPreviewDoc] = useState<DocumentRecord | null>(null);
 
   const canAct = ACTIONABLE_STATUSES.includes(intake.status);
+  const canViewPrivileged = intake.status === "APPROVED";
 
   async function updateStatus(status: "APPROVED" | "REJECTED") {
     setActionError("");
@@ -190,10 +191,13 @@ export default function IntakeDetail({ intake }: { intake: IntakeFull }) {
     router.refresh();
   }
 
+  // Privileged view is only active when the intake is approved
+  const effectivePrivileged = privileged && canViewPrivileged;
+
   // Resolved display values (redacted vs. privileged)
-  const phone = privileged ? intake.clientPhone : redactPhone(intake.clientPhone);
-  const dob = privileged ? intake.dateOfBirth : REDACTED_DOB;
-  const ssn = privileged ? intake.ssn : redactSSN(intake.ssn);
+  const phone = effectivePrivileged ? intake.clientPhone : redactPhone(intake.clientPhone);
+  const dob = effectivePrivileged ? intake.dateOfBirth : REDACTED_DOB;
+  const ssn = effectivePrivileged ? intake.ssn : redactSSN(intake.ssn);
 
   return (
     <div className={styles.container}>
@@ -244,14 +248,16 @@ export default function IntakeDetail({ intake }: { intake: IntakeFull }) {
               <h2 className={styles.cardTitle}>Patient Information</h2>
               <div className={styles.toggle}>
                 <button
-                  className={`${styles.toggleBtn} ${!privileged ? styles.toggleActive : ""}`}
+                  className={`${styles.toggleBtn} ${!effectivePrivileged ? styles.toggleActive : ""}`}
                   onClick={() => setPrivileged(false)}
                 >
                   Redacted
                 </button>
                 <button
-                  className={`${styles.toggleBtn} ${privileged ? styles.toggleActive : ""}`}
+                  className={`${styles.toggleBtn} ${effectivePrivileged ? styles.toggleActive : ""}`}
                   onClick={() => setPrivileged(true)}
+                  disabled={!canViewPrivileged}
+                  title={!canViewPrivileged ? "Available once the intake is approved" : undefined}
                 >
                   Privileged
                 </button>
@@ -260,9 +266,9 @@ export default function IntakeDetail({ intake }: { intake: IntakeFull }) {
             <dl className={styles.infoGrid}>
               <InfoField label="Full Name" value={intake.clientName} />
               <InfoField label="Email" value={intake.clientEmail} />
-              <InfoField label="Phone" value={phone} sensitive={!privileged} />
-              <InfoField label="Date of Birth" value={dob} sensitive={!privileged} mono={privileged} />
-              <InfoField label="SSN" value={ssn} sensitive={!privileged} mono />
+              <InfoField label="Phone" value={phone} sensitive={!effectivePrivileged} />
+              <InfoField label="Date of Birth" value={dob} sensitive={!effectivePrivileged} mono={effectivePrivileged} />
+              <InfoField label="SSN" value={ssn} sensitive={!effectivePrivileged} mono />
             </dl>
           </div>
 

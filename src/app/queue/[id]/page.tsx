@@ -28,15 +28,41 @@ export default async function IntakeDetailPage({ params }: PageProps) {
 
   if (!raw) notFound();
 
-  // Record a VIEWED audit log entry
-  await prisma.auditLog.create({
-    data: { action: "VIEWED", userId: user.id, intakeId: id },
-  });
+  // Auto-transition PENDING → IN_REVIEW on first reviewer view, and always log VIEWED.
+  // Both writes are batched in a single transaction.
+  let effectiveStatus = raw.status as IntakeFull["status"];
+  let effectiveReviewer = raw.reviewer as { id: string; name: string } | null;
+
+  if (raw.status === "PENDING") {
+    await prisma.$transaction([
+      prisma.intake.update({
+        where: { id },
+        data: { status: "IN_REVIEW", reviewerId: user.id },
+      }),
+      prisma.auditLog.create({
+        data: {
+          action: "STATUS_CHANGED",
+          details: JSON.stringify({ from: "PENDING", to: "IN_REVIEW" }),
+          userId: user.id,
+          intakeId: id,
+        },
+      }),
+      prisma.auditLog.create({
+        data: { action: "VIEWED", userId: user.id, intakeId: id },
+      }),
+    ]);
+    effectiveStatus = "IN_REVIEW";
+    effectiveReviewer = { id: user.id, name: user.name };
+  } else {
+    await prisma.auditLog.create({
+      data: { action: "VIEWED", userId: user.id, intakeId: id },
+    });
+  }
 
   // Serialize all dates for the client component
   const intake: IntakeFull = {
     id: raw.id,
-    status: raw.status as IntakeFull["status"],
+    status: effectiveStatus,
     createdAt: raw.createdAt.toISOString(),
     clientName: raw.clientName,
     clientEmail: raw.clientEmail,
@@ -46,7 +72,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
     description: raw.description,
     notes: raw.notes ?? null,
     submittedBy: raw.submittedBy,
-    reviewer: raw.reviewer ?? null,
+    reviewer: effectiveReviewer,
     auditLogs: raw.auditLogs.map((log) => ({
       id: log.id,
       action: log.action,
