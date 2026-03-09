@@ -37,7 +37,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   const relPath = path.join("uploads", intakeId, storedName);
   const absPath = path.join(process.cwd(), relPath);
 
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const buffer = new Uint8Array(await file.arrayBuffer());
   await writeFile(absPath, buffer);
 
   const document = await prisma.document.create({

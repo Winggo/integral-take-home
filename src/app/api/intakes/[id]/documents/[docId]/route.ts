@@ -50,7 +50,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       ? `attachment; filename="${doc.fileName}"`
       : `inline; filename="${doc.fileName}"`;
 
-  return new NextResponse(buffer, {
+  return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": doc.fileType || "application/octet-stream",
       "Content-Disposition": disposition,

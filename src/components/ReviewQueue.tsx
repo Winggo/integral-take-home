@@ -57,8 +57,13 @@ export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
     <div className={styles.container}>
       {/* Page header */}
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Review Queue</h1>
-        <p className={styles.pageSubtitle}>Manage and review client intake submissions</p>
+        <div>
+          <h1 className={styles.pageTitle}>Review Queue</h1>
+          <p className={styles.pageSubtitle}>Manage and review client intake submissions</p>
+        </div>
+        <Link href="/queue/audit-trail" className={styles.auditLink}>
+          Audit Trail →
+        </Link>
       </div>
 
       {/* Summary cards */}
