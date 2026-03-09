@@ -1,5 +1,7 @@
 # Integral Take-Home Challenge
 
+View my responses to the submission questions in [SUBMISSION.md](./SUBMISSION.md).
+
 ## Your Mission
 
 Welcome to Integral's Take-Home Challenge! We need your help building a privacy-conscious clinical trial enrollment system.
