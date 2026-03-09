@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
+import bcrypt from "bcryptjs";
 
 const adapter = new PrismaLibSql({
   url: `file:${process.env.DATABASE_URL!.replace("file:", "")}`,
@@ -10,6 +11,10 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("Seeding database...");
+
+  // Hash demo password (both users share the same demo password)
+  const patientPasswordHash = await bcrypt.hash("patient-id-1", 12);
+  const reviewerPasswordHash = await bcrypt.hash("reviewer-id-1", 12);
 
   // Clear existing data
   await prisma.auditLog.deleteMany();
@@ -24,6 +29,7 @@ async function main() {
       name: "Demo Patient",
       role: "PATIENT",
       organization: "Trial Participant",
+      passwordHash: patientPasswordHash,
     },
   });
 
@@ -33,6 +39,7 @@ async function main() {
       name: "Dr. Sarah Chen",
       role: "REVIEWER",
       organization: "PharmaCorp Trial Coordinator",
+      passwordHash: reviewerPasswordHash,
     },
   });
 
