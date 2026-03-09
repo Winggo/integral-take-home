@@ -120,6 +120,7 @@
 .controls {
   display: flex;
   gap: 0.625rem;
+  flex-wrap: wrap;
   align-items: center;
 }
 

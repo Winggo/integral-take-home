@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import styles from "./ReviewQueue.module.css";
-import { type Status, STATUS_LABELS, formatDate } from "@/lib/intakeHelpers";
+import { type Status, STATUS_LABELS, formatDate, type DateRange, DATE_OPTIONS, getDateBounds } from "@/lib/intakeHelpers";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -40,10 +40,13 @@ const PAGE_SIZE = 10;
 export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "ALL">("ALL");
+  const [dateFilter, setDateFilter] = useState<DateRange>("ALL");
   const [page, setPage] = useState(1);
 
   const counts = { PENDING: 0, IN_REVIEW: 0, APPROVED: 0, REJECTED: 0 } as Record<Status, number>;
   intakes.forEach((i) => counts[i.status]++);
+
+  const dateBounds = getDateBounds(dateFilter);
 
   const filtered = intakes.filter((intake) => {
     const q = search.toLowerCase();
@@ -53,7 +56,13 @@ export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
       intake.clientEmail.toLowerCase().includes(q) ||
       intake.id.slice(0, 8).toLowerCase().includes(q);
     const matchesStatus = statusFilter === "ALL" || intake.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    if (!matchesSearch || !matchesStatus) return false;
+    if (dateBounds) {
+      const createdAt = new Date(intake.createdAt);
+      if (createdAt < dateBounds.from) return false;
+      if (dateBounds.to && createdAt >= dateBounds.to) return false;
+    }
+    return true;
   });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -118,6 +127,15 @@ export default function ReviewQueue({ intakes }: { intakes: IntakeSummary[] }) {
               <option value="IN_REVIEW">In Review</option>
               <option value="APPROVED">Approved</option>
               <option value="REJECTED">Rejected</option>
+            </select>
+            <select
+              className={styles.statusSelect}
+              value={dateFilter}
+              onChange={(e) => { setDateFilter(e.target.value as DateRange); setPage(1); }}
+            >
+              {DATE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </div>
         </div>

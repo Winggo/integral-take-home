@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import styles from "./AuditTrailList.module.css";
-import { formatDate, formatAuditAction } from "@/lib/intakeHelpers";
+import { formatDate, formatAuditAction, type DateRange, DATE_OPTIONS, getDateBounds } from "@/lib/intakeHelpers";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,7 +32,10 @@ const PAGE_SIZE = 10;
 export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
+  const [dateFilter, setDateFilter] = useState<DateRange>("ALL");
   const [page, setPage] = useState(1);
+
+  const dateBounds = getDateBounds(dateFilter);
 
   const filtered = entries.filter((entry) => {
     const q = search.toLowerCase();
@@ -42,7 +45,13 @@ export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
       entry.intake.id.slice(0, 8).toLowerCase().includes(q) ||
       entry.user.name.toLowerCase().includes(q);
     const matchesAction = actionFilter === "ALL" || entry.action === actionFilter;
-    return matchesSearch && matchesAction;
+    if (!matchesSearch || !matchesAction) return false;
+    if (dateBounds) {
+      const createdAt = new Date(entry.createdAt);
+      if (createdAt < dateBounds.from) return false;
+      if (dateBounds.to && createdAt >= dateBounds.to) return false;
+    }
+    return true;
   });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -112,6 +121,15 @@ export default function AuditTrailList({ entries }: { entries: AuditEntry[] }) {
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
+              ))}
+            </select>
+            <select
+              className={styles.actionSelect}
+              value={dateFilter}
+              onChange={(e) => { setDateFilter(e.target.value as DateRange); setPage(1); }}
+            >
+              {DATE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>
