@@ -7,6 +7,7 @@ import {
   validateField,
   formatSSN,
   formatPhone,
+  formatBytes,
 } from "@/lib/intakeFormHelpers";
 
 interface Props {
@@ -45,6 +46,7 @@ export default function IntakeForm({ defaultName, defaultEmail }: Props) {
 
   const [touched, setTouched] = useState<Partial<Record<keyof FormFields, boolean>>>({});
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormFields, string>>>({});
+  const [files, setFiles] = useState<File[]>([]);
 
   // ── Helpers ──
 
@@ -81,11 +83,22 @@ export default function IntakeForm({ defaultName, defaultEmail }: Props) {
     return errors;
   }
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = Array.from(e.target.files ?? []);
+    setFiles((prev) => [...prev, ...selected]);
+    e.target.value = ""; // reset so re-selecting the same file works
+  }
+
+  function removeFile(index: number) {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
   function reset() {
     setSuccess(null);
     setSubmitError("");
     setFieldErrors({});
     setTouched({});
+    setFiles([]);
     setForm({
       clientName: defaultName,
       clientEmail: defaultEmail,
@@ -122,6 +135,21 @@ export default function IntakeForm({ defaultName, defaultEmail }: Props) {
     }
 
     const intake = await res.json();
+
+    // Upload any selected documents (best-effort; intake is already saved)
+    if (files.length > 0) {
+      await Promise.allSettled(
+        files.map((file) => {
+          const fd = new FormData();
+          fd.append("file", file);
+          return fetch(`/api/intakes/${intake.id}/documents`, {
+            method: "POST",
+            body: fd,
+          });
+        })
+      );
+    }
+
     setSuccess({ intakeId: intake.id });
   }
 
@@ -296,6 +324,43 @@ export default function IntakeForm({ defaultName, defaultEmail }: Props) {
             onChange={(e) => setFieldValue("notes", e.target.value)}
             rows={3}
           />
+        </div>
+
+        {/* Supporting Documents */}
+        <div className={styles.fieldFull}>
+          <span className={styles.label}>Supporting Documents</span>
+          <p className={styles.hint}>
+            Upload medical records, insurance cards, or other relevant files (optional).
+          </p>
+          <label className={styles.fileLabel} htmlFor="fileInput">
+            + Add files
+          </label>
+          <input
+            id="fileInput"
+            type="file"
+            multiple
+            className={styles.fileInput}
+            onChange={handleFileChange}
+            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+          />
+          {files.length > 0 && (
+            <ul className={styles.fileList}>
+              {files.map((file, i) => (
+                <li key={i} className={styles.fileItem}>
+                  <span className={styles.fileName}>{file.name}</span>
+                  <span className={styles.fileSize}>{formatBytes(file.size)}</span>
+                  <button
+                    type="button"
+                    className={styles.removeFile}
+                    onClick={() => removeFile(i)}
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className={styles.divider} />
