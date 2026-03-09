@@ -28,6 +28,11 @@ export default async function IntakeDetailPage({ params }: PageProps) {
 
   if (!raw) notFound();
 
+  // Record a VIEWED audit log entry
+  await prisma.auditLog.create({
+    data: { action: "VIEWED", userId: user.id, intakeId: id },
+  });
+
   // Serialize all dates for the client component
   const intake: IntakeFull = {
     id: raw.id,
