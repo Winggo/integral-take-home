@@ -1,6 +1,8 @@
 # Submission Questions
 
-Total time spent: ~3.5 hours
+Total time spent:
+- ~3.5 hours on implementation
+- ~15 mins on recording demo video and answering submission questions
 
 What I prioritized:
 - Core requirements, which consisted of:
